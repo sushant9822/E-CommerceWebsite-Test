@@ -22,3 +22,16 @@ jobs:
         with:
           name: semgrep-report
           path: semgrep_report.txt
+
+      - name: Send artifact link to Slack
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "*🔍 Semgrep Scan Completed!*"
+            blocks:
+              - type: "section"
+                text:
+                  type: "mrkdwn"
+                  text: "*🔍 Semgrep Scan Completed!*\n*Status:* ${{ job.status }}\n\n*📄 Report Download Link:*\n<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Click here to view the report>"
