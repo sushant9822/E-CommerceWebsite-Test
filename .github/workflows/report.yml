@@ -1,0 +1,37 @@
+name: Semgrep Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  semgrep:
+    name: semgrep/ci
+    runs-on: ubuntu-22.04
+    container:
+      image: returntocorp/semgrep
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Semgrep and save report
+        run: semgrep scan --config auto . --text --text-output=semgrep_report.txt
+
+      - name: Read Semgrep report
+        id: read_report
+        run: echo "REPORT_CONTENT<<EOF" >> $GITHUB_ENV && cat semgrep_report.txt >> $GITHUB_ENV && echo "EOF" >> $GITHUB_ENV
+
+      - name: Send report to Slack
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "*🔍 Semgrep Scan Report:*"
+            blocks:
+              - type: "section"
+                text:
+                  type: "mrkdwn"
+                  text: |
+                    *🔍 Semgrep Scan Report:*
+                    ```
+                    ${{ env.REPORT_CONTENT }}
+                    ```
