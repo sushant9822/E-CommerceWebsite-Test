@@ -1,0 +1,31 @@
+name: Python Tests with Coverage
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run Unit Tests and Upload Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.12.x
+
+      - name: Install Homebrew
+        run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+      - name: Add Homebrew to PATH
+        run: |
+          echo "/opt/homebrew/bin" >> $GITHUB_ENV
+
+      - name: Install ffmpeg and ffprobe
+        run: |
+          brew install ffmpeg
+
